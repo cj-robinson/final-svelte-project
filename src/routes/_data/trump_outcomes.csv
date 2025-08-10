@@ -1,0 +1,9 @@
+trump_flag,correct_prediction,n
+"Other
+political events",Correct prediction,246
+"Political events
+mentioning Trump",Correct prediction,154
+"Other
+political events",Incorrect prediction,62
+"Political events
+mentioning Trump",Incorrect prediction,70

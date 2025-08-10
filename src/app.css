@@ -1,0 +1,154 @@
+html,
+body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  color: #333;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue",
+    sans-serif;
+}
+
+#svelte {
+  width: 100%;
+  height: 100%;
+}
+
+a {
+  color: rgb(0, 100, 200);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a:visited {
+  color: rgb(0, 80, 160);
+}
+
+label {
+  display: block;
+}
+
+input,
+button,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0.4em;
+  margin: 0 0 0.5em 0;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+}
+
+input:disabled {
+  color: #ccc;
+}
+
+button {
+  color: #333;
+  background-color: #f4f4f4;
+  outline: none;
+}
+
+button:disabled {
+  color: #999;
+}
+
+button:not(:disabled):active {
+  background-color: #ddd;
+}
+
+button:focus {
+  border-color: #666;
+}
+
+h2 {
+  background-color: dodgerblue;
+  color: white;
+  display: inline-block;
+  margin-top: 2em;
+  max-width: 700px;
+}
+
+
+body {
+	font-family: Arial, Helvetica, sans-serif;
+  }
+
+  h3 {
+	margin-top: 2em;
+  }
+  code {
+	background: #fff880;
+  }
+  
+  svg {
+	margin: 0 auto;
+	display: block;
+  }
+  #container {
+	max-width: 46rem;
+	margin: 0 auto;
+  }
+  #moses {
+	height: 200px;
+	margin: auto;
+	display:block;
+	padding-top:50px;
+  }
+  
+  .annotation {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: x-small;
+  }
+  
+  .borough {
+	font-weight: 800;
+  }
+  
+  .data-source {
+	font-family: Arial, Helvetica, sans-serif;
+	color: gray;
+	font-size: small;
+  }
+  .note{
+	background-color:cornsilk;
+	padding: 5px;
+  }
+  .snippet {
+	font-family: "Courier New", Courier, monospace;
+  }
+  
+  .subhed {
+	font-size: small;
+  }
+  .subtitle {
+	color: gray;
+  }
+  .tooltip {
+	fill: black;
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .script{
+    background-color:whitesmoke;
+  }
+  .script-name{
+    font-size:small;
+    font-family: "Courier New", Courier, monospace;
+    font-weight:500;
+
+  }
+
+  pre{
+    margin-top:0;
+  }
