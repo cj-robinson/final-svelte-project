@@ -14,14 +14,16 @@ const config = {
 
 	kit: {
 		paths: {
-			base: dev ? '' : '/example-svelte-viz-page',
+			base: process.argv.includes('dev') ? '' : process.env.BASE_PATH
 		},
 		adapter: adapter({
-			// default options are shown
-			pages: 'docs',
-			assets: 'docs',
-			fallback: null,
-			precompress: false
+			// default options are shown. On some platforms
+			// these options are set automatically — see below
+			pages: 'build',
+			assets: 'build',
+			fallback: undefined,
+			precompress: false,
+			strict: true
 		}),
 		vite: {
 			plugins: [
@@ -30,5 +32,7 @@ const config = {
 		}
 	}
 };
+
+
 
 export default config;
