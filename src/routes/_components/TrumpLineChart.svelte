@@ -51,7 +51,6 @@
   $: yAxis = d3.axisLeft(yScale).tickFormat(d3.format(".0%"))
 
   let animationProgress = 0
-  // Calculate animation progress based on currentStep
   $: if (currentStep === 0 || currentStep === undefined) {
     animationProgress = 0
   } else if (currentStep === 1) {

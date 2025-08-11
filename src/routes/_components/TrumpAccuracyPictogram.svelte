@@ -77,7 +77,6 @@
         return squares;
     }
 
-    // Center the grids horizontally
     $: gridStartX = 0;
     $: trumpGridY = 20;
     $: otherGridY = trumpGridY + gridHeight + gridSpacing;
@@ -147,7 +146,7 @@
 .grid-section {
     display: flex;
     align-items: flex-start;
-    gap: 10px; /* Small gap between labels and chart */
+    gap: 10px;
 }
 
 .grid-labels {
