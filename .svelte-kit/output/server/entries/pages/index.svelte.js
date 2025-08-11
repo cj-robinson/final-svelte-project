@@ -113,7 +113,7 @@ const TimelineBarChart = create_ssr_component(($$result, $$props, $$bindings, sl
   });
   d3.axisLeft(yScale).tickFormat(d3.format(".0%"));
   return `<div class="${"chart-container svelte-1hzniu9"}"><svg${add_attribute("width", svg_width, 0)}${add_attribute("height", svg_height$1, 0)}><g class="${"chart"}" transform="${"translate(" + escape(margins.left) + ", " + escape(margins.top) + ")"}"><g class="${"bar-group"}">${each(data$2, (month) => {
-    return `<rect${add_attribute("x", xScale(month.dateStr), 0)}${add_attribute("y", yScale(month.vol_perc), 0)}${add_attribute("width", xScale.bandwidth(), 0)}${add_attribute("height", yScale(0) - yScale(month.vol_perc), 0)} fill="${"steelblue"}"></rect>`;
+    return `<rect${add_attribute("x", xScale(month.dateStr), 0)}${add_attribute("y", yScale(month.vol_perc), 0)}${add_attribute("width", xScale.bandwidth(), 0)}${add_attribute("height", yScale(0) - yScale(month.vol_perc), 0)} fill="${"green"}"></rect>`;
   })}</g><g${add_attribute("transform", `translate(0, ${chartHeight})`, 0)}${add_attribute("this", xAxisNode, 0)}></g><g${add_attribute("this", yAxisNode, 0)}></g></g></svg>
 </div>`;
 });
@@ -141,45 +141,31 @@ var data$1 = [
 ];
 var TrumpAccuracyPictogram_svelte_svelte_type_style_lang = "";
 const css$2 = {
-  code: ".chart-container.svelte-9oieb6{display:flex;justify-content:center;align-items:center}.grid-section.svelte-9oieb6{position:relative;display:flex;align-items:center}.grid-labels.svelte-9oieb6{position:absolute;left:-250px;width:200px;display:flex;flex-direction:column;height:100%}.trump-label.svelte-9oieb6{position:absolute;top:80px;left:calc(180%);text-align:right}.other-label.svelte-9oieb6{position:absolute;top:300px;left:calc(200%);text-align:right}.grid-title.svelte-9oieb6{font-size:16px;font-weight:bold;fill:#374151}.legend-title.svelte-9oieb6{font-size:14px;font-weight:bold;fill:#374151}.legend-text.svelte-9oieb6{font-size:12px;fill:#6b7280}",
+  code: ".chart-container.svelte-z83lxd{display:flex;justify-content:center;align-items:flex-start;max-width:760px}.grid-section.svelte-z83lxd{display:flex;align-items:flex-start;gap:10px}.grid-labels.svelte-z83lxd{display:flex;flex-direction:column;justify-content:flex-start;padding-top:40px;max-width:100px}.trump-label.svelte-z83lxd{height:117px;display:flex;align-items:center;justify-content:flex-end;margin-bottom:100px}.other-label.svelte-z83lxd{height:117px;display:flex;align-items:center;justify-content:flex-end}.grid-title.svelte-z83lxd{font-size:16px;font-weight:bold;color:#374151;text-align:right;line-height:1.2}",
   map: null
 };
 let svg_height = 400;
 let cols = 10;
 let rows = 5;
-let squareSize = 20;
 let gap = 3;
 let gridSpacing = 100;
-function generateGrid(correctSquares, yOffset) {
-  let squares = [];
-  let correctCount = 0;
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      let x = col * (squareSize + gap);
-      let y = row * (squareSize + gap) + yOffset;
-      let isCorrect = correctCount < correctSquares;
-      squares.push({
-        x,
-        y,
-        fill: isCorrect ? "#22c55e" : "#eeeeee"
-      });
-      correctCount++;
-    }
-  }
-  return squares;
-}
 const TrumpAccuracyPictogram = create_ssr_component(($$result, $$props, $$bindings, slots) => {
+  let svg_width;
   let chartWidth;
+  let squareHeight;
+  let squareWidth;
+  let gridHeight;
   let trumpData;
   let otherData;
   let trumpCorrectSquares;
   let otherCorrectSquares;
+  let generateGrid;
   let gridStartX;
   let trumpGridY;
   let otherGridY;
   let trumpSquares;
   let otherSquares;
-  let svg_width = 700;
+  let labelWidth = 0;
   let margins = {
     top: 40,
     bottom: 40,
@@ -201,28 +187,47 @@ const TrumpAccuracyPictogram = create_ssr_component(($$result, $$props, $$bindin
     };
   }
   let totalSquares = cols * rows;
-  let gridWidth = cols * (squareSize + gap) - gap;
-  let gridHeight = rows * (squareSize + gap) - gap;
   $$result.css.add(css$2);
-  chartWidth = svg_width - margins.left - margins.right;
+  svg_width = 700;
+  chartWidth = svg_width - margins.left - margins.right - labelWidth - 10;
+  squareHeight = 20;
+  squareWidth = (chartWidth - (cols - 1) * gap) / cols;
+  gridHeight = rows * (squareHeight + gap) - gap;
   trumpData = getGroupData("Political events\nmentioning Trump");
   otherData = getGroupData("Other\npolitical events");
   trumpCorrectSquares = Math.round(trumpData.correct_prop * totalSquares);
   otherCorrectSquares = Math.round(otherData.correct_prop * totalSquares);
-  gridStartX = (chartWidth - gridWidth) / 2;
+  generateGrid = function(correctSquares, yOffset) {
+    let squares = [];
+    let correctCount = 0;
+    for (let col = 0; col < cols; col++) {
+      for (let row = 0; row < rows; row++) {
+        let x = col * (squareWidth + gap);
+        let y = row * (squareHeight + gap) + yOffset;
+        let isCorrect = correctCount < correctSquares;
+        squares.push({
+          x,
+          y,
+          fill: isCorrect ? "#22c55e" : "#eeeeee"
+        });
+        correctCount++;
+      }
+    }
+    return squares;
+  };
+  gridStartX = 0;
   trumpGridY = 20;
   otherGridY = trumpGridY + gridHeight + gridSpacing;
   trumpSquares = generateGrid(trumpCorrectSquares, trumpGridY);
   otherSquares = generateGrid(otherCorrectSquares, otherGridY);
-  return `<div class="${"chart-container svelte-9oieb6"}"><div class="${"grid-section svelte-9oieb6"}"><div class="${"grid-labels svelte-9oieb6"}"><div class="${"trump-label svelte-9oieb6"}"><div class="${"grid-title svelte-9oieb6"}">Political events mentioning Trump</div></div></div>
+  return `<div class="${"chart-container svelte-z83lxd"}"><div class="${"grid-section svelte-z83lxd"}"><div class="${"grid-labels svelte-z83lxd"}"><div class="${"trump-label svelte-z83lxd"}"><div class="${"grid-title svelte-z83lxd"}">Political events mentioning Trump</div></div>
+            <div class="${"other-label svelte-z83lxd"}"><div class="${"grid-title svelte-z83lxd"}">Other political events</div></div></div>    
         
         <svg${add_attribute("width", svg_width, 0)}${add_attribute("height", svg_height, 0)}><g transform="${"translate(" + escape(margins.left) + ", " + escape(margins.top) + ")"}"><g transform="${"translate(" + escape(gridStartX) + ", 0)"}">${each(trumpSquares, (square) => {
-    return `<rect${add_attribute("x", square.x, 0)}${add_attribute("y", square.y, 0)}${add_attribute("width", squareSize, 0)}${add_attribute("height", squareSize, 0)}${add_attribute("fill", square.fill, 0)} stroke="${"#fff"}" stroke-width="${"1"}"></rect>`;
+    return `<rect${add_attribute("x", square.x, 0)}${add_attribute("y", square.y, 0)}${add_attribute("width", squareWidth, 0)}${add_attribute("height", squareHeight, 0)}${add_attribute("fill", square.fill, 0)} stroke="${"#fff"}" stroke-width="${"1"}"></rect>`;
   })}</g><g transform="${"translate(" + escape(gridStartX) + ", 0)"}">${each(otherSquares, (square) => {
-    return `<rect${add_attribute("x", square.x, 0)}${add_attribute("y", square.y, 0)}${add_attribute("width", squareSize, 0)}${add_attribute("height", squareSize, 0)}${add_attribute("fill", square.fill, 0)} stroke="${"#fff"}" stroke-width="${"1"}"></rect>`;
-  })}</g><g transform="${"translate(" + escape(gridStartX) + ", " + escape(otherGridY + gridHeight + 40) + ")"}"><text x="${"0"}" y="${"0"}" class="${"legend-title svelte-9oieb6"}">Legend:</text><rect x="${"0"}" y="${"10"}" width="${"15"}" height="${"15"}" fill="${"#22c55e"}" stroke="${"#fff"}" stroke-width="${"1"}"></rect><text x="${"20"}" y="${"22"}" class="${"legend-text svelte-9oieb6"}">Correct prediction</text><rect x="${"150"}" y="${"10"}" width="${"15"}" height="${"15"}" fill="${"#ef4444"}" stroke="${"#fff"}" stroke-width="${"1"}"></rect><text x="${"170"}" y="${"22"}" class="${"legend-text svelte-9oieb6"}">Incorrect prediction</text></g></g></svg>
-        
-        <div class="${"grid-labels svelte-9oieb6"}"><div class="${"other-label svelte-9oieb6"}"><div class="${"grid-title svelte-9oieb6"}">Other political events</div></div></div></div>
+    return `<rect${add_attribute("x", square.x, 0)}${add_attribute("y", square.y, 0)}${add_attribute("width", squareWidth, 0)}${add_attribute("height", squareHeight, 0)}${add_attribute("fill", square.fill, 0)} stroke="${"#fff"}" stroke-width="${"1"}"></rect>`;
+  })}</g></g></svg></div>
 </div>`;
 });
 var data = [
@@ -2381,7 +2386,7 @@ const css$1 = {
   code: "#trump-line-chart.svelte-6qlx0l{font-family:Arial, sans-serif}.chart text{font-size:11px;fill:#333}.chart .domain{stroke:#333}.chart .tick line{stroke:#ccc}",
   map: null
 };
-let height = 600;
+let height = 400;
 const TrumpLineChart = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   let chartWidth;
   let xScale;
@@ -2404,17 +2409,18 @@ const TrumpLineChart = create_ssr_component(($$result, $$props, $$bindings, slot
     TrumpValue: +d["Donald Trump"]
   })).filter((d) => d.Date && !isNaN(d.TrumpValue));
   d3.extent(processedData, (d) => d.TrumpValue);
+  let xAxisNode, yAxisNode;
   if ($$props.currentStep === void 0 && $$bindings.currentStep && currentStep !== void 0)
     $$bindings.currentStep(currentStep);
   $$result.css.add(css$1);
   chartWidth = width - margin.left - margin.right;
   xScale = d3.scaleTime().domain(d3.extent(processedData, (d) => d.Date)).range([0, chartWidth]);
   yScale = d3.scaleLinear().domain([0.3, 0.7]).nice().range([chartHeight, 0]);
-  line = d3.line().x((d) => xScale(d.Date)).y((d) => yScale(d.TrumpValue)).curve(d3.curveMonotoneX);
+  line = d3.line().x((d) => xScale(d.Date)).y((d) => yScale(d.TrumpValue));
   pathData = line(processedData);
   d3.axisBottom(xScale).tickFormat(d3.timeFormat("%b %Y"));
   d3.axisLeft(yScale).tickFormat(d3.format(".0%"));
-  return `<div id="${"trump-line-chart"}" class="${"svelte-6qlx0l"}"><svg${add_attribute("width", width, 0)}${add_attribute("height", height, 0)}><g class="${"chart"}" transform="${"translate(" + escape(margin.left) + ", " + escape(margin.top) + ")"}"><path${add_attribute("d", pathData, 0)} stroke="${"#dc2626"}" stroke-width="${"2"}" fill="${"none"}"${add_attribute("this", pathElement, 0)}></path><line${add_attribute("x1", 0, 0)}${add_attribute("x2", chartWidth, 0)}${add_attribute("y1", yScale(0.5), 0)}${add_attribute("y2", yScale(0.5), 0)} stroke="${"red"}" stroke-width="${"2"}" stroke-dasharray="${"4,2"}"></line><g${add_attribute("transform", `translate(0, ${chartHeight})`, 0)}></g><g></g></g></svg>
+  return `<div id="${"trump-line-chart"}" class="${"svelte-6qlx0l"}"><svg${add_attribute("width", width, 0)}${add_attribute("height", height, 0)}><g class="${"chart"}" transform="${"translate(" + escape(margin.left) + ", " + escape(margin.top) + ")"}"><path${add_attribute("d", pathData, 0)} stroke="${"green"}" stroke-width="${"2"}" fill="${"none"}"${add_attribute("this", pathElement, 0)}></path><line${add_attribute("x1", 0, 0)}${add_attribute("x2", chartWidth, 0)}${add_attribute("y1", yScale(0.5), 0)}${add_attribute("y2", yScale(0.5), 0)} stroke="${"green"}" stroke-width="${"2"}" stroke-dasharray="${"4,2"}"></line><g${add_attribute("transform", `translate(0, ${chartHeight})`, 0)}${add_attribute("this", xAxisNode, 0)}></g><g${add_attribute("this", yAxisNode, 0)}></g></g></svg>
 </div>`;
 });
 const Scrolly = create_ssr_component(($$result, $$props, $$bindings, slots) => {
@@ -2481,7 +2487,7 @@ const Scrolly = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 });
 var index_svelte_svelte_type_style_lang = "";
 const css = {
-  code: '.svelte-1p0wspx.svelte-1p0wspx{box-sizing:border-box}.step.svelte-1p0wspx.svelte-1p0wspx{height:80vh;display:flex;place-items:center;justify-content:center}.step-content.svelte-1p0wspx.svelte-1p0wspx{background:whitesmoke;color:#ccc;border-radius:5px;padding:0.5rem 1rem;display:flex;flex-direction:column;justify-content:center;transition:background 500ms ease;box-shadow:1px 1px 10px rgba(0, 0, 0, 0.2);z-index:10}.step.active.svelte-1p0wspx .step-content.svelte-1p0wspx{background:white;color:black}body{margin:0;overflow-x:hidden;width:100%;font-size:20px;font-family:Arial, Helvetica, sans-serif;text-rendering:optimizeLegibility}.section-container.svelte-1p0wspx.svelte-1p0wspx{margin-top:1em;text-align:center;transition:background 100ms;display:flex}.hero.svelte-1p0wspx.svelte-1p0wspx{background-color:#a2a251;padding:1.5rem;width:100%;margin:0;overflow-x:hidden}.hero-body.svelte-1p0wspx.svelte-1p0wspx{width:100%;margin:0}.section-container.svelte-1p0wspx.svelte-1p0wspx{flex-direction:column-reverse}.sticky.svelte-1p0wspx.svelte-1p0wspx{width:95%;margin:auto}.content.svelte-1p0wspx.svelte-1p0wspx{max-width:640px;margin:auto}.header.svelte-1p0wspx.svelte-1p0wspx{padding:3em 0;padding-bottom:0em}a.svelte-1p0wspx.svelte-1p0wspx{color:#95cb99}.footer.svelte-1p0wspx.svelte-1p0wspx{background:#a2a251;text-align:center;font-size:0.8em;margin-top:4em;padding:4em 0}.spacer.svelte-1p0wspx.svelte-1p0wspx{height:40vh}h1.svelte-1p0wspx.svelte-1p0wspx{font-family:Arial, Helvetica, sans-serif;font-weight:bold;font-size:3em;line-height:1.1}.subhead.svelte-1p0wspx.svelte-1p0wspx{font-family:"Lora", Georgia, serif}p.svelte-1p0wspx.svelte-1p0wspx{line-height:1.6;margin:0;padding-bottom:1.2em}.full-width.svelte-1p0wspx.svelte-1p0wspx{max-width:760px;text-align:center;margin:auto}.chart-title.svelte-1p0wspx.svelte-1p0wspx{font-size:24px;font-weight:bold;text-align:left;margin-bottom:0.5em;margin-left:auto;margin-right:auto}.chart-subtitle.svelte-1p0wspx.svelte-1p0wspx{font-size:14px;text-align:left;margin-bottom:0.5em}.steps-container.svelte-1p0wspx.svelte-1p0wspx,.sticky.svelte-1p0wspx.svelte-1p0wspx{height:100%}.steps-container.svelte-1p0wspx.svelte-1p0wspx{flex:1 1 40%;z-index:10}.sticky.svelte-1p0wspx.svelte-1p0wspx{position:sticky;top:10%;flex:1 1 60%}@media(max-width: 640px){.content.svelte-1p0wspx.svelte-1p0wspx{padding-left:0.5em;padding-right:0.5em}.hero.svelte-1p0wspx.svelte-1p0wspx{padding:1rem}.hero-body.svelte-1p0wspx.svelte-1p0wspx{width:100%;margin:0}.footer.svelte-1p0wspx.svelte-1p0wspx{width:100%}}p.svelte-1p0wspx.svelte-1p0wspx{max-width:700px}',
+  code: '.svelte-1pc7n3w.svelte-1pc7n3w{box-sizing:border-box}.step.svelte-1pc7n3w.svelte-1pc7n3w{height:80vh;display:flex;place-items:center;justify-content:center}.step-content.svelte-1pc7n3w.svelte-1pc7n3w{background:whitesmoke;color:#ccc;border-radius:5px;padding:0.5rem 1rem;display:flex;flex-direction:column;justify-content:center;transition:background 500ms ease;box-shadow:1px 1px 10px rgba(0, 0, 0, 0.2);z-index:10}.step.active.svelte-1pc7n3w .step-content.svelte-1pc7n3w{background:white;color:black}body{margin:0;overflow-x:hidden;width:100%;font-size:20px;font-family:Arial, Helvetica, sans-serif;text-rendering:optimizeLegibility}.section-container.svelte-1pc7n3w.svelte-1pc7n3w{margin-top:1em;text-align:center;transition:background 100ms;display:flex}.hero.svelte-1pc7n3w.svelte-1pc7n3w{background-color:#a2a251;padding:1.5rem;width:100%;margin:0;overflow-x:hidden}.hero-body.svelte-1pc7n3w.svelte-1pc7n3w{width:100%;margin:0}.section-container.svelte-1pc7n3w.svelte-1pc7n3w{flex-direction:column-reverse}.sticky.svelte-1pc7n3w.svelte-1pc7n3w{width:95%;margin:auto}.content.svelte-1pc7n3w.svelte-1pc7n3w{max-width:640px;margin:auto}.header.svelte-1pc7n3w.svelte-1pc7n3w{padding:3em 0;padding-bottom:0em}a.svelte-1pc7n3w.svelte-1pc7n3w{color:#95cb99}.footer.svelte-1pc7n3w.svelte-1pc7n3w{background:#a2a251;text-align:center;font-size:0.8em;margin-top:4em;padding:4em 0}.spacer.svelte-1pc7n3w.svelte-1pc7n3w{height:40vh}h1.svelte-1pc7n3w.svelte-1pc7n3w{font-family:Arial, Helvetica, sans-serif;font-weight:bold;font-size:3em;line-height:1.1}.subhead.svelte-1pc7n3w.svelte-1pc7n3w{font-family:"Lora", Georgia, serif}p.svelte-1pc7n3w.svelte-1pc7n3w{line-height:1.6;margin:0;padding-bottom:1.2em}.full-width.svelte-1pc7n3w.svelte-1pc7n3w{max-width:760px;text-align:center;margin:auto}.chart-title.svelte-1pc7n3w.svelte-1pc7n3w{font-size:24px;font-weight:bold;text-align:left;margin-bottom:0.5em;margin-left:auto;margin-right:auto}.chart-subtitle.svelte-1pc7n3w.svelte-1pc7n3w{font-size:14px;text-align:left;margin-bottom:0.5em}.steps-container.svelte-1pc7n3w.svelte-1pc7n3w,.sticky.svelte-1pc7n3w.svelte-1pc7n3w{height:100%}.steps-container.svelte-1pc7n3w.svelte-1pc7n3w{flex:1 1 40%;z-index:10}.sticky.svelte-1pc7n3w.svelte-1pc7n3w{position:sticky;top:calc(50vh - 200px);flex:1 1 60%}@media(max-width: 640px){.content.svelte-1pc7n3w.svelte-1pc7n3w{padding-left:0.5em;padding-right:0.5em}.hero.svelte-1pc7n3w.svelte-1pc7n3w{padding:1rem}.hero-body.svelte-1pc7n3w.svelte-1pc7n3w{width:100%;margin:0}.footer.svelte-1pc7n3w.svelte-1pc7n3w{width:100%}}p.svelte-1pc7n3w.svelte-1pc7n3w{max-width:700px}',
   map: null
 };
 const Routes = create_ssr_component(($$result, $$props, $$bindings, slots) => {
@@ -2489,27 +2495,28 @@ const Routes = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   const steps = [
     "<p>Our chart shows how Polymarket reacted to news as Trump ran for president. The red line indicates a 50% chance of winning.</p>",
     "<p>In July, Biden wirthdrew from the race and the market promptly reacted, increasing Trump's chances of winning to nearly 70%.</p>",
-    "<p>The market settled back down, but rarely favored Kamala Harris.</p> <p>Does this predicitng power go beyond the presidential election?</p>"
+    "<p>The market settled back down once Kamala Harris was chosen to replace Biden.</p>",
+    "<p>Probability spiked back up in October 2024, contrary to many polls.</p> <p>Does this predicting power go beyond the presidential election?</p>"
   ];
   $$result.css.add(css);
   let $$settled;
   let $$rendered;
   do {
     $$settled = true;
-    $$rendered = `<section class="${"hero svelte-1p0wspx"}"><div class="${"hero-body svelte-1p0wspx"}"><a href="${"https://cj-robinson.github.io"}" style="${"color:transparent;"}" class="${"svelte-1p0wspx"}"><h1 class="${"title svelte-1p0wspx"}" style="${"font-family: -apple-system, BlinkMacSystemFont, 'helvetica neue', helvetica,arial, sans-serif; color: white; font-size: 2rem; margin: 0;"}">C.J. Robinson
+    $$rendered = `<section class="${"hero svelte-1pc7n3w"}"><div class="${"hero-body svelte-1pc7n3w"}"><a href="${"https://cj-robinson.github.io"}" style="${"color:transparent;"}" class="${"svelte-1pc7n3w"}"><h1 class="${"title svelte-1pc7n3w"}" style="${"font-family: -apple-system, BlinkMacSystemFont, 'helvetica neue', helvetica,arial, sans-serif; color: white; font-size: 2rem; margin: 0;"}">C.J. Robinson
       </h1></a></div></section>
-<div class="${"content svelte-1p0wspx"}"><div class="${"header svelte-1p0wspx"}"><h1 class="${"svelte-1p0wspx"}">Know what Trump is going to do next? Willing to bet on it?</h1>
-    <p class="${"subhead svelte-1p0wspx"}">An analysis of how accurate political betting markets can be in the age of
+<div class="${"content svelte-1pc7n3w"}"><div class="${"header svelte-1pc7n3w"}"><h1 class="${"svelte-1pc7n3w"}">Know what Trump is going to do next? Willing to bet on it?</h1>
+    <p class="${"subhead svelte-1pc7n3w"}">An analysis of how accurate political betting markets can be in the age of
       Donald Trump
     </p></div>
-  <div class="${"byline svelte-1p0wspx"}"><p class="${"svelte-1p0wspx"}">By <a href="${"https://cj-robinson.github.io"}" class="${"svelte-1p0wspx"}">C.J. Robinson</a></p></div>
-  <p class="${"svelte-1p0wspx"}">The rise of prediction markets like Polymarket over the past decade has
+  <div class="${"byline svelte-1pc7n3w"}"><p class="${"svelte-1pc7n3w"}">By <a href="${"https://cj-robinson.github.io"}" class="${"svelte-1pc7n3w"}">C.J. Robinson</a></p></div>
+  <p class="${"svelte-1pc7n3w"}">The rise of prediction markets like Polymarket over the past decade has
     given them large-scale legitimacy, especially after their correct prediction
     of the 2024 election. A new analysis reveals, however, that markets may have
     a harder time predicting Trump&#39;s actions compared to other political events.
   </p>
 
-  <div class="${"section-container svelte-1p0wspx"}"><div class="${"steps-container svelte-1p0wspx"}"><div class="${"spacer svelte-1p0wspx"}"></div>
+  <div class="${"section-container svelte-1pc7n3w"}"><div class="${"steps-container svelte-1pc7n3w"}"><div class="${"spacer svelte-1pc7n3w"}"></div>
       
       ${validate_component(Scrolly, "Scroll").$$render($$result, { value: currentStep }, {
       value: ($$value) => {
@@ -2519,85 +2526,86 @@ const Routes = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     }, {
       default: () => {
         return `${each(steps, (text, i) => {
-          return `<div class="${["step svelte-1p0wspx", currentStep === i ? "active" : ""].join(" ").trim()}"><div class="${"step-content svelte-1p0wspx"}"><!-- HTML_TAG_START -->${text}<!-- HTML_TAG_END --></div>
+          return `<div class="${["step svelte-1pc7n3w", currentStep === i ? "active" : ""].join(" ").trim()}"><div class="${"step-content svelte-1pc7n3w"}"><!-- HTML_TAG_START -->${text}<!-- HTML_TAG_END --></div>
           </div>`;
         })}`;
       }
     })}
-      <div class="${"spacer svelte-1p0wspx"}"></div></div>
-    <div class="${"full-width sticky svelte-1p0wspx"}"><div class="${"chart-title svelte-1p0wspx"}">Polymarket&#39;s fame largely increased after it accurately predicted the
+      <div class="${"spacer svelte-1pc7n3w"}"></div>
+      <div class="${"spacer svelte-1pc7n3w"}"></div></div>
+    <div class="${"full-width sticky svelte-1pc7n3w"}"><div class="${"chart-title svelte-1pc7n3w"}">Polymarket&#39;s fame largely increased after it accurately predicted the
         presidential election
       </div>
-      <div class="${"chart-subtitle svelte-1p0wspx"}">Likelihood Donald Trump would win the presidency, according to
+      <div class="${"chart-subtitle svelte-1pc7n3w"}">Likelihood Donald Trump would win the presidency, according to
         Polymarket.
       </div>
       ${validate_component(TrumpLineChart, "TrumpLineChart").$$render($$result, { currentStep }, {}, {})}</div></div>
 
-  <p class="${"svelte-1p0wspx"}">Proponents of these markets argue that since <a href="${"https://finance.yahoo.com/news/elon-musk-advocates-crypto-prediction-072206636.html"}" class="${"svelte-1p0wspx"}">money is on the line</a>, they can often lead to more powerful predictions. Users will buy or sell
+  <p class="${"svelte-1pc7n3w"}">Proponents of these markets argue that since <a href="${"https://finance.yahoo.com/news/elon-musk-advocates-crypto-prediction-072206636.html"}" class="${"svelte-1pc7n3w"}">money is on the line</a>, they can often lead to more powerful predictions. Users will buy or sell
     shares of a certain outcome, like whether Trump will end the war in Ukraine
     within 90 days of his presidency. Each possible outcome&#39;s price rises and
     falls in real time as users trade using real money.
   </p>
-  <p class="${"svelte-1p0wspx"}">Utilizing the Polymarket to analyze each political event since 2024, the
+  <p class="${"svelte-1pc7n3w"}">Utilizing the Polymarket to analyze each political event since 2024, the
     analysis found that large political betting markets not mentioning Trump
     correctly predicted outcomes almost 80% of the time. For markets dealing
     with Trump, that accuracy fell to 68%.
   </p>
 
-  <div class="${"chart-title svelte-1p0wspx"}">With money on the line, predictions about Trump are less accurate
+  <div class="${"chart-title svelte-1pc7n3w"}">With money on the line, predictions about Trump are less accurate
   </div>
-  <div class="${"chart-subtitle svelte-1p0wspx"}">Proportion of Polymarket events where market correctly predicted outcome
+  <div class="${"chart-subtitle svelte-1pc7n3w"}">Proportion of Polymarket events where market correctly predicted outcome
     from January 2024 to March 2025
   </div></div>
-<div class="${"full-width svelte-1p0wspx"}">${validate_component(TrumpAccuracyPictogram, "TrumpAccuracyPictogram").$$render($$result, {}, {}, {})}</div>
-<div class="${"content svelte-1p0wspx"}"><p class="${"svelte-1p0wspx"}">There may be several reasons for this discrepancy.</p>
-  <p class="${"svelte-1p0wspx"}">First, markets may be influenced by decisions by external factors like
+<div class="${"full-width svelte-1pc7n3w"}">${validate_component(TrumpAccuracyPictogram, "TrumpAccuracyPictogram").$$render($$result, {}, {}, {})}</div>
+<div class="${"content svelte-1pc7n3w"}"><p class="${"svelte-1pc7n3w"}">There may be several reasons for this discrepancy.</p>
+  <p class="${"svelte-1pc7n3w"}">First, markets may be influenced by decisions by external factors like
     political preference.
   </p>
-  <p class="${"svelte-1p0wspx"}">Mattew Flynn, a professor at Texas State University, said these markets
+  <p class="${"svelte-1pc7n3w"}">Mattew Flynn, a professor at Texas State University, said these markets
     differ from the stock market in how they price information, and possibly
     their accuracy. He found that Polymarket can react more quickly than
     traditional markets to changes. Even still, investing in an individual&#39;s
     decisions rather than a corporation leads to differing incentives.
   </p>
-  <p class="${"svelte-1p0wspx"}">\u201CIn some sense, it does ignore if you have some strong behavioral bias that
+  <p class="${"svelte-1pc7n3w"}">\u201CIn some sense, it does ignore if you have some strong behavioral bias that
     might influence you to act a certain way,\u201D Flynn said. \u201CIf you love the
     Mets, even though the Mets might not be good, you&#39;d still bet on the Mets
     all the time.\u201D
   </p>
-  <p class="${"svelte-1p0wspx"}"><a href="${"https://finance.yahoo.com/news/polymarket-whale-actually-made-85-050139914.html"}" class="${"svelte-1p0wspx"}">Evidence of \u201Cwhales\u201D</a> who dumped large amounts of money into markets predicting the presidential
+  <p class="${"svelte-1pc7n3w"}"><a href="${"https://finance.yahoo.com/news/polymarket-whale-actually-made-85-050139914.html"}" class="${"svelte-1pc7n3w"}">Evidence of \u201Cwhales\u201D</a> who dumped large amounts of money into markets predicting the presidential
     election caused controversy in 2024 by those alleging market manipulation.
   </p>
-  <p class="${"svelte-1p0wspx"}">Markets may have differing levels of trading volume. A less popular market
+  <p class="${"svelte-1pc7n3w"}">Markets may have differing levels of trading volume. A less popular market
     predicting a specific action of Trump may be less accurate than a larger
     market predicting the actions of the Federal Reserve. The data shows that
     accuracy is largely unaffected by the amount of money in a market.
   </p>
-  <p class="${"svelte-1p0wspx"}">Many of these markets involve President Trump, especially since his
+  <p class="${"svelte-1pc7n3w"}">Many of these markets involve President Trump, especially since his
     inauguration.
   </p>
 
-  <div class="${"chart-title svelte-1p0wspx"}">In January 2025, Trump dominated political betting and prediction markets
+  <div class="${"chart-title svelte-1pc7n3w"}">In January 2025, Trump dominated political betting and prediction markets
   </div>
-  <div class="${"chart-subtitle svelte-1p0wspx"}">Percentage of political Polymarket events mentioning Trump by month of
+  <div class="${"chart-subtitle svelte-1pc7n3w"}">Percentage of political Polymarket events mentioning Trump by month of
     market creation
   </div></div>
 
-<div class="${"full-width svelte-1p0wspx"}">${validate_component(TimelineBarChart, "TimelineBarChart").$$render($$result, {}, {}, {})}</div>
+<div class="${"full-width svelte-1pc7n3w"}">${validate_component(TimelineBarChart, "TimelineBarChart").$$render($$result, {}, {}, {})}</div>
 
-<div class="${"content svelte-1p0wspx"}"><p class="${"svelte-1p0wspx"}">This presents an increasing risk to investors in these markets and casts
+<div class="${"content svelte-1pc7n3w"}"><p class="${"svelte-1pc7n3w"}">This presents an increasing risk to investors in these markets and casts
     doubt on the predictive power of these markets as a whole. Polymarket users
     have already invested more than $18 million on whether Trump will end the
     war in Ukraine by the end of his first 90 days (currently, a 30% chance of
     occurring, according to the bettors).
   </p></div>
-<div class="${"footer svelte-1p0wspx"}"><p class="${"svelte-1p0wspx"}">Find the code and data for this project <a href="${"https://github.com/cj-robinson/polymarket-accuracy"}" class="${"svelte-1p0wspx"}">here</a>
+<div class="${"footer svelte-1pc7n3w"}"><p class="${"svelte-1pc7n3w"}">Find the code and data for this project <a href="${"https://github.com/cj-robinson/polymarket-accuracy"}" class="${"svelte-1pc7n3w"}">here</a>
 
     </p>
-  <div class="${"social-icons mt-4 svelte-1p0wspx"}"><a href="${"mailto:c.j.robinson@columbia.edu"}" class="${"icon is-medium mr-3 svelte-1p0wspx"}" style="${"color:transparent;"}"><i class="${"fas fa-envelope fa-lg svelte-1p0wspx"}" style="${"color:white;"}"></i></a>
-    <a href="${"https://bsky.app/profile/cj-robinson.bsky.social"}" class="${"icon is-medium mr-3 svelte-1p0wspx"}" style="${"color:transparent;"}"><i class="${"fa-brands fa-bluesky svelte-1p0wspx"}" style="${"color:white;"}"></i></a>
-    <a href="${"https://www.linkedin.com/in/christophercjrobinson"}" class="${"icon is-medium mr-3 svelte-1p0wspx"}" style="${"color:transparent;"}"><i class="${"fab fa-linkedin fa-lg svelte-1p0wspx"}" style="${"color:white;"}"></i></a>
-    <a href="${"https://github.com/cj-robinson"}" class="${"icon is-medium mr-3 svelte-1p0wspx"}" style="${"color:transparent;"}"><i class="${"fab fa-github fa-lg svelte-1p0wspx"}" style="${"color:white;"}"></i></a></div>
+  <div class="${"social-icons mt-4 svelte-1pc7n3w"}"><a href="${"mailto:c.j.robinson@columbia.edu"}" class="${"icon is-medium mr-3 svelte-1pc7n3w"}" style="${"color:transparent;"}"><i class="${"fas fa-envelope fa-lg svelte-1pc7n3w"}" style="${"color:white;"}"></i></a>
+    <a href="${"https://bsky.app/profile/cj-robinson.bsky.social"}" class="${"icon is-medium mr-3 svelte-1pc7n3w"}" style="${"color:transparent;"}"><i class="${"fa-brands fa-bluesky svelte-1pc7n3w"}" style="${"color:white;"}"></i></a>
+    <a href="${"https://www.linkedin.com/in/christophercjrobinson"}" class="${"icon is-medium mr-3 svelte-1pc7n3w"}" style="${"color:transparent;"}"><i class="${"fab fa-linkedin fa-lg svelte-1pc7n3w"}" style="${"color:white;"}"></i></a>
+    <a href="${"https://github.com/cj-robinson"}" class="${"icon is-medium mr-3 svelte-1pc7n3w"}" style="${"color:transparent;"}"><i class="${"fab fa-github fa-lg svelte-1pc7n3w"}" style="${"color:white;"}"></i></a></div>
 </div>`;
   } while (!$$settled);
   return $$rendered;

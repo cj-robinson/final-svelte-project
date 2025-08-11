@@ -6,7 +6,7 @@
   export let currentStep = 0
   
   let pathElement
-  let height = 600
+  let height = 400
   let width = 600
 
   let margin = { top: 10, bottom: 100, left: 60, right: 30 }
@@ -43,7 +43,6 @@
     .line()
     .x(d => xScale(d.Date))
     .y(d => yScale(d.TrumpValue))
-    .curve(d3.curveMonotoneX) // Smooth the line
 
   $: pathData = line(processedData)
 
@@ -51,9 +50,17 @@
   $: xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat("%b %Y"))
   $: yAxis = d3.axisLeft(yScale).tickFormat(d3.format(".0%"))
 
+  let animationProgress = 0
   // Calculate animation progress based on currentStep
-  // Assuming 3 steps (0, 1, 2) - adjust based on your actual steps
-  $: animationProgress = Math.max(0, Math.min(1, currentStep / 2))
+  $: if (currentStep === 0 || currentStep === undefined) {
+    animationProgress = 0
+  } else if (currentStep === 1) {
+    animationProgress = .5
+  } else if (currentStep === 2) {
+    animationProgress = .85
+  } else {
+    animationProgress = 1
+  }
 
   $: if (pathElement && pathData) {
     // Animate based on currentStep progress
@@ -95,12 +102,12 @@
     }   
 </script>
 
-<div id="trump-line-chart" bind:offsetHeight={width}>
+<div id="trump-line-chart" bind:offsetWidth={width}>
   <svg {width} {height}>
     <g class="chart" transform="translate({margin.left}, {margin.top})">
       <path
         d={pathData}
-        stroke="#dc2626"
+        stroke="green"
         stroke-width="2"
         fill="none"
         bind:this={pathElement}
@@ -110,12 +117,12 @@
         x2={chartWidth}
         y1={yScale(0.5)}
         y2={yScale(0.5)}
-        stroke="red"
+        stroke="green"
         stroke-width="2"
         stroke-dasharray="4,2"
       />      
-      <g use:renderXAxis transform={`translate(0, ${chartHeight})`} />
-      <g use:renderYAxis />
+      <g bind:this={xAxisNode} transform={`translate(0, ${chartHeight})`} />
+      <g bind:this={yAxisNode} />
     </g>
   </svg>
 </div>

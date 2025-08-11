@@ -88,7 +88,7 @@
                     y={yScale(month.vol_perc)}
                     width={xScale.bandwidth()}
                     height={yScale(0) - yScale(month.vol_perc)}
-                    fill="steelblue"
+                    fill="green"
                 />
             {/each}
         </g>

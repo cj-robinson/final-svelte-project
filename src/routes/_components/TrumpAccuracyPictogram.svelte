@@ -2,11 +2,14 @@
     import data from "../_data/trump_outcomes.csv"
     import { scaleLinear } from "d3-scale";
 
-    let svg_width = 700
+    let labelContainer;
+    let labelWidth = 0;
+    
+    $: svg_width = 700  
     let svg_height = 400    
 
     let margins = {top: 40, bottom: 40, left: 100, right: 100}
-    $: chartWidth = svg_width - margins.left - margins.right
+    $: chartWidth = svg_width - margins.left - margins.right - labelWidth - 10 // Subtract label width and gap
     let chartHeight = svg_height - margins.top - margins.bottom
 
     // Helper to get group data
@@ -24,11 +27,24 @@
     let cols = 10;
     let rows = 5;
     let totalSquares = cols * rows;
-    let squareSize = 20;
     let gap = 3;
-    let gridWidth = cols * (squareSize + gap) - gap;
-    let gridHeight = rows * (squareSize + gap) - gap;
+    $: squareHeight = 20;
+    $: squareWidth = (chartWidth - (cols - 1) * gap) / cols; // Account for gaps between squares
+
+    $: squareSize = squareWidth * squareHeight;
+    $:  gridWidth = chartWidth;
+    $:  gridHeight = rows * (squareHeight + gap) - gap;
     let gridSpacing = 100;
+
+    // let cols = 10;
+    // let rows = 5;
+    // let totalSquares = cols * rows;
+    // let squareSize = 20;
+    // let gap = 3;
+    // let gridWidth = cols * (squareSize + gap) - gap;
+    // let gridHeight = rows * (squareSize + gap) - gap;
+    // let gridSpacing = 100;
+
 
     // Calculate data for both groups
     $: trumpData = getGroupData("Political events\nmentioning Trump");
@@ -39,14 +55,14 @@
     $: otherCorrectSquares = Math.round(otherData.correct_prop * totalSquares);
 
     // Generate square positions and colors for a grid
-    function generateGrid(correctSquares, yOffset) {
+    $: generateGrid = function(correctSquares, yOffset) {
         let squares = [];
         let correctCount = 0;
         
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                let x = col * (squareSize + gap);
-                let y = row * (squareSize + gap) + yOffset;
+        for (let col = 0; col < cols; col++) {
+            for (let row = 0; row < rows; row++) {
+                let x = col * (squareWidth + gap);
+                let y = row * (squareHeight + gap) + yOffset;
                 let isCorrect = correctCount < correctSquares;
                 
                 squares.push({
@@ -62,7 +78,7 @@
     }
 
     // Center the grids horizontally
-    $: gridStartX = (chartWidth - gridWidth) / 2;
+    $: gridStartX = 0;
     $: trumpGridY = 20;
     $: otherGridY = trumpGridY + gridHeight + gridSpacing;
 
@@ -71,12 +87,15 @@
 </script>
 
 <div class="chart-container" bind:offsetWidth={svg_width}>
-    <div class="grid-section" >
-        <div class="grid-labels">
+    <div class="grid-section">
+        <div class="grid-labels" bind:offsetWidth={labelWidth}>
             <div class="trump-label">
                 <div class="grid-title">Political events mentioning Trump</div>
             </div>
-        </div>
+            <div class="other-label">
+                <div class="grid-title">Other political events</div>
+            </div>
+        </div>    
         
         <svg width={svg_width} height={svg_height}>
             <g transform="translate({margins.left}, {margins.top})">
@@ -86,8 +105,8 @@
                         <rect 
                             x={square.x} 
                             y={square.y} 
-                            width={squareSize} 
-                            height={squareSize} 
+                            width={squareWidth} 
+                            height={squareHeight} 
                             fill={square.fill}
                             stroke="#fff"
                             stroke-width="1"
@@ -101,31 +120,19 @@
                         <rect 
                             x={square.x} 
                             y={square.y} 
-                            width={squareSize} 
-                            height={squareSize} 
+                            width={squareWidth} 
+                            height={squareHeight} 
                             fill={square.fill}
                             stroke="#fff"
                             stroke-width="1"
                         />
                     {/each}
                 </g>
-                
-                <!-- Legend -->
-                <g transform="translate({gridStartX}, {otherGridY + gridHeight + 40})">
-                    <text x="0" y="0" class="legend-title">Legend:</text>
-                    <rect x="0" y="10" width="15" height="15" fill="#22c55e" stroke="#fff" stroke-width="1"/>
-                    <text x="20" y="22" class="legend-text">Correct prediction</text>
-                    <rect x="150" y="10" width="15" height="15" fill="#ef4444" stroke="#fff" stroke-width="1"/>
-                    <text x="170" y="22" class="legend-text">Incorrect prediction</text>
-                </g>
+            
             </g>
         </svg>
         
-        <div class="grid-labels">
-            <div class="other-label">
-                <div class="grid-title">Other political events</div>
-            </div>
-        </div>
+
     </div>
 </div>
 
@@ -133,57 +140,61 @@
 .chart-container {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    max-width: 760px;
 }
 
 .grid-section {
-    position: relative;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    gap: 10px; /* Small gap between labels and chart */
 }
 
 .grid-labels {
-    position: absolute;
-    left: -250px;
-    width: 200px;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    justify-content: flex-start;
+    padding-top: 40px; 
+    max-width: 100px;
 }
 
 .trump-label {
-    position: absolute;
-    top: 80px; 
-    left: calc(180%);
-    text-align: right;
+    height: 117px; /* Height of one grid (gridHeight) */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Right align */
+    margin-bottom: 100px; /* gridSpacing to match chart gap */
 }
 
 .other-label {
-    position: absolute;
-    top: 300px;
-    left: calc(200%);
-    text-align: right;
+    height: 117px; /* Height of one grid (gridHeight) */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Right align */
 }
 
 .grid-title {
     font-size: 16px;
     font-weight: bold;
-    fill: #374151;
+    color: #374151;
+    /* Remove white-space: nowrap to allow text wrapping */
+    text-align: right;
+    line-height: 1.2;
 }
 
 .accuracy-text {
     font-size: 14px;
-    fill: #6b7280;
+    color: #6b7280;
 }
 
 .legend-title {
     font-size: 14px;
     font-weight: bold;
-    fill: #374151;
+    color: #374151;
 }
 
 .legend-text {
     font-size: 12px;
-    fill: #6b7280;
+    color: #6b7280;
 }
 </style>

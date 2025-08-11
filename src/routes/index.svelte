@@ -9,7 +9,8 @@
   const steps = [
     "<p>Our chart shows how Polymarket reacted to news as Trump ran for president. The red line indicates a 50% chance of winning.</p>",
     "<p>In July, Biden wirthdrew from the race and the market promptly reacted, increasing Trump's chances of winning to nearly 70%.</p>",
-    "<p>The market settled back down, but rarely favored Kamala Harris.</p> <p>Does this predicitng power go beyond the presidential election?</p>",
+    "<p>The market settled back down once Kamala Harris was chosen to replace Biden.</p>",
+    "<p>Probability spiked back up in October 2024, contrary to many polls.</p> <p>Does this predicting power go beyond the presidential election?</p>",
   ];
 </script>
 
@@ -56,6 +57,7 @@
           </div>
         {/each}
       </Scroll>
+      <div class="spacer" />
       <div class="spacer" />
     </div>
     <div class="full-width sticky">
@@ -377,7 +379,7 @@
 
   .sticky {
     position: sticky;
-    top: 10%;
+    top: calc(50vh - 200px); /* 50% of viewport height minus half the chart height */
     flex: 1 1 60%;
   }
 
