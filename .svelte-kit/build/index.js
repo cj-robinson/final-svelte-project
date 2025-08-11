@@ -9,7 +9,7 @@ const template = ({ head, body, assets, nonce }) => "<!DOCTYPE html>\n<html lang
 
 let read = null;
 
-set_paths({"base":"","assets":""});
+set_paths({"base":"/final-svelte-project","assets":""});
 
 // this looks redundant, but the indirection allows us to access
 // named imports without triggering Rollup's missing import detection

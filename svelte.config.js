@@ -14,7 +14,7 @@ const config = {
 
 	kit: {
 		paths: {
-			base: process.argv.includes('dev') ? '' : process.env.BASE_PATH
+			base: dev ? '' : '/final-svelte-project'
 		},
 		adapter: adapter({
 			// default options are shown. On some platforms

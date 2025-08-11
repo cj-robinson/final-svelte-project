@@ -1921,7 +1921,7 @@ var user_hooks = /* @__PURE__ */ Object.freeze({
 });
 const template = ({ head, body, assets: assets2, nonce }) => '<!DOCTYPE html>\n<html lang="en">\n  <head>\n    	' + head + '\n\n  </head>\n\n  <body>\n    	<div id="svelte">' + body + "</div>\n	</body>\n</html>\n\n";
 let read = null;
-set_paths({ "base": "", "assets": "" });
+set_paths({ "base": "/final-svelte-project", "assets": "" });
 const get_hooks = (hooks) => ({
   getSession: hooks.getSession || (() => ({})),
   handle: hooks.handle || (({ event, resolve: resolve2 }) => resolve2(event)),
